@@ -2,8 +2,6 @@ pipeline {
     agent any
 
     environment {
-        HARBOR_USER = 'admin'
-        HARBOR_PASS = credentials('harbor-credentials')
         IMAGE = "linux02.local/flask-demo/flask-demo"
         TAG = "build-${BUILD_NUMBER}"
     }
@@ -23,33 +21,22 @@ pipeline {
 
         stage('Push to Harbor') {
             steps {
-                sh """
-                    echo ${HARBOR_PASS} | docker login linux02.local -u ${HARBOR_USER} --password-stdin
-                    docker push ${IMAGE}:${TAG}
-                    docker logout linux02.local
-                """
-            }
-        }
-
-        stage('Deploy to K8s') {
-            steps {
-                sh """
-                    sed -i 's|IMAGE_PLACEHOLDER|${IMAGE}:${TAG}|g' k8s/deployment.yaml
-                    kubectl apply -f k8s/
-                    kubectl rollout status deployment/flask-demo --timeout=60s
-                """
+                withCredentials([usernamePassword(
+                    credentialsId: 'harbor-credentials',
+                    usernameVariable: 'HARBOR_USER',
+                    passwordVariable: 'HARBOR_PASS'
+                )]) {
+                    sh 'echo $HARBOR_PASS | docker login linux02.local -u $HARBOR_USER --password-stdin'
+                    sh 'docker push $IMAGE:$TAG'
+                    sh 'docker logout linux02.local'
+                }
             }
         }
     }
 
     post {
-        success { echo "部署成功：${IMAGE}:${TAG}" }
-        failure {
-            sh "kubectl describe pods -l app=flask-demo || true"
-            sh "kubectl logs -l app=flask-demo --previous || true"
-        }
-        always {
-            sh "docker rmi ${IMAGE}:${TAG} || true"
-        }
+        success { echo "镜像已推送：${IMAGE}:${TAG}" }
+        failure { echo "构建失败，查看日志" }
+        always  { sh 'docker rmi $IMAGE:$TAG || true' }
     }
 }
