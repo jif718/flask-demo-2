@@ -4,14 +4,6 @@ pipeline {
     }
 
     stages {
-        stage('Checkout') {
-            steps {
-                git branch: 'master',
-                    credentialsId: 'gitea-credentials',
-                    url: 'http://linux03.local:3000/admin/flask-demo.git'
-            }
-        }
-
         stage('Check Python') {
             steps {
                 sh 'python3 --version'
@@ -19,22 +11,47 @@ pipeline {
             }
         }
 
+        stage('Create Virtualenv') {
+            steps {
+                sh 'python3 -m venv .venv'
+            }
+        }
+
         stage('Install Dependencies') {
             steps {
-                sh 'pip3 install --user -r requirements.txt'
+                sh '''
+                    . .venv/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
+                '''
             }
         }
 
         stage('Syntax Check') {
             steps {
-                sh 'python3 -m py_compile app.py'
+                sh '''
+                    . .venv/bin/activate
+                    python -m py_compile app.py
+                '''
             }
         }
 
         stage('Import Flask App') {
             steps {
-                sh 'python3 -c "import app; print(\'Flask app import success\')"'
+                sh '''
+                    . .venv/bin/activate
+                    python -c "import app; print('Flask app import success')"
+                '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Python CI 检查通过'
+        }
+        failure {
+            echo 'Python CI 检查失败，请查看日志'
         }
     }
 }
