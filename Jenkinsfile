@@ -1,42 +1,40 @@
 pipeline {
-    agent any
-
-    environment {
-        IMAGE = "linux02.local/flask-demo/flask-demo"
-        TAG = "build-${BUILD_NUMBER}"
+    agent {
+        label 'python'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                echo "代码已检出：${GIT_COMMIT}"
+                git branch: 'master',
+                    credentialsId: 'gitea-credentials',
+                    url: 'http://linux03.local:3000/admin/flask-demo.git'
             }
         }
 
-        stage('Build Image') {
+        stage('Check Python') {
             steps {
-                sh "docker build -t ${IMAGE}:${TAG} ."
+                sh 'python3 --version'
+                sh 'pip3 --version'
             }
         }
 
-        stage('Push to Harbor') {
+        stage('Install Dependencies') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'harbor-credentials',
-                    usernameVariable: 'HARBOR_USER',
-                    passwordVariable: 'HARBOR_PASS'
-                )]) {
-                    sh 'echo $HARBOR_PASS | docker login linux02.local -u $HARBOR_USER --password-stdin'
-                    sh 'docker push $IMAGE:$TAG'
-                    sh 'docker logout linux02.local'
-                }
+                sh 'pip3 install --user -r requirements.txt'
             }
         }
-    }
 
-    post {
-        success { echo "镜像已推送：${IMAGE}:${TAG}" }
-        failure { echo "构建失败，查看日志" }
-        always  { sh 'docker rmi $IMAGE:$TAG || true' }
+        stage('Syntax Check') {
+            steps {
+                sh 'python3 -m py_compile app.py'
+            }
+        }
+
+        stage('Import Flask App') {
+            steps {
+                sh 'python3 -c "import app; print(\'Flask app import success\')"'
+            }
+        }
     }
 }
