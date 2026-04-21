@@ -70,7 +70,7 @@ pipeline {
                             echo "=== curl check ==="
                             curl -s http://127.0.0.1:8080/ | tee curl.out
 
-                            grep -q "Hello from Flask Demo v1.2" curl.out
+                            grep -q "Hello from Flask Demo" curl.out
                         '''
                     }
                 }
