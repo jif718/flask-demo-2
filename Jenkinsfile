@@ -2,7 +2,7 @@ pipeline {
     agent none
 
     environment {
-        IMAGE = 'linux02.local/myapp/flask-demo-1'
+        IMAGE = 'linux02.local/myapp/flask-demo-2'
         TAG = "build-${BUILD_NUMBER}"
     }
 
@@ -70,7 +70,7 @@ pipeline {
                             echo "=== curl check ==="
                             curl -s http://127.0.0.1:8080/ | tee curl.out
 
-                            grep -q "Hello from Flask Demo" curl.out
+                            grep -q "Hello from New Flask Demo" curl.out
                         '''
                     }
                 }
