@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: flask-demo
+  name: flask-demo-1
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: flask-demo
+      app: flask-demo-1
   template:
     metadata:
       labels:
-        app: flask-demo
+        app: flask-demo-1
     spec:
       imagePullSecrets:
         - name: harbor-secret

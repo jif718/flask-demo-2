@@ -2,7 +2,7 @@ pipeline {
     agent none
 
     environment {
-        IMAGE = 'linux02.local/flask-demo/flask-demo'
+        IMAGE = 'linux02.local/myapp/flask-demo-1'
         TAG = "build-${BUILD_NUMBER}"
     }
 
