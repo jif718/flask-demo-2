@@ -109,7 +109,7 @@ pipeline {
     post {
         success {
             echo "镜像已成功推送到 Harbor: ${IMAGE}:${TAG}"
-            echo "后续请手动使用 Helm 部署这个镜像"
+            echo "后续请部署这个镜像"
         }
         failure {
             echo '流水线失败，请查看日志排查'
