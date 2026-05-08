@@ -1,6 +1,8 @@
 from flask import Flask
+from metrics import init_metrics
 
 app = Flask(__name__)
+init_metrics(app)
 
 @app.route('/')
 def hello():
@@ -45,7 +47,7 @@ def hello():
 </head>
 <body>
     <div class="card">
-        <h1>Hello from New Flask Demo v1.6</h1>
+        <h1>Hello from New Flask Demo v1.7</h1>
         <p>Running on Kubernetes + Helm</p>
     </div>
 </body>
