@@ -68,6 +68,13 @@ pipeline {
                     }
                 }
 
+                // Runtime health checking is delegated to Kubernetes
+                // readinessProbe/livenessProbe (see flask-demo-2-chart:
+                // readinessProbe -> GET /, livenessProbe -> GET /health),
+                // so the CI pipeline no longer boots the app to probe it.
+            }
+        }
+
         stage('Build and Push to ECR') {
             agent {
                 label 'kaniko'
