@@ -47,7 +47,7 @@ def hello():
 </head>
 <body>
     <div class="card">
-        <h1>Hello from New Flask Demo v1.9</h1>
+        <h1>Hello from New Flask Demo v1.10</h1>
         <p>Running on Kubernetes + Helm</p>
     </div>
 </body>
